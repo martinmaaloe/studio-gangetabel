@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gangetabel Spil</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+    body {
+      font-family: 'Fredoka One', cursive;
+      margin: 0;
+      padding: 0;
+      background-color: #FAD4D8;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin: 0.5em 0;
+      color: #F05340;
+      text-shadow: 2px 2px #FFFFFF;
+    }
+
+    h2 {
+      margin: 0.5em 0;
+      color: #F05340;
+    }
+
+    p {
+      margin: 0.5em 0;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 15px 25px;
+      margin: 10px;
+      background-color: #F05340;
+      color: #FFF;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .button:hover {
+      transform: scale(1.1);
+      background-color: #DB3C28;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #F05340;
+      font-size: 16px;
+      text-align: center;
+      margin: 10px;
+    }
+
+    .options button {
+      margin: 10px;
+      padding: 15px 25px;
+      background-color: #F2B44B;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .options button:hover {
+      background-color: #DB9737;
+      transform: scale(1.05);
+    }
+
+    #name-screen, #start-screen, #game-screen, #end-screen {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #start-screen, #game-screen, #end-screen {
+      display: none;
+    }
+
+.footer-mascot {
+  position: fixed;
+  bottom: 0; /* Uglen sidder fast i bunden */
+  left: 50%; /* Centrer uglen vandret */
+  transform: translateX(-50%); /* Holder uglen centreret */
+  z-index: 10; /* Sørg for, at uglen vises øverst */
+}
+
+.footer-mascot img {
+  width: 200px; /* Juster størrelsen for mindre skærme */
+  height: auto; /* Bevar proportionerne */
+  opacity: 0.6; /* Let gennemsigtighed */
+  transition: transform 0.3s ease, opacity 0.3s ease; /* Smidig hover-effekt */
+  cursor: pointer; /* Markøren skifter til en hånd ved hover */
+}
+
+.footer-mascot img:hover {
+  transform: scale(1.1); /* Uglen vokser, men forbliver centreret */
+  opacity: 1; /* Fuld synlighed */
+}
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(0deg, #F05340 0%, #F2B44B 100%);
+      clip-path: ellipse(150% 100% at 50% 100%);
+    }
+
+body {
+  padding-bottom: 250px; /* Tilføj plads under hovedindholdet til uglen */
+}
+
+@media (max-width: 480px) {
+  .footer-mascot img {
+    width: 150px; /* Mindre størrelse for mobilskærme */
+  }
+
+  body {
+    padding-bottom: 200px; /* Tilpas pladsen under indholdet på små skærme */
+  }
+}
+  </style>
+</head>
+<body>
+  <h1>Gangetabel Spil</h1>
+
+  <!-- Name Input Screen -->
+  <div id="name-screen">
+    <h2>Velkommen! Indtast dit navn:</h2>
+    <input type="text" id="player-name" placeholder="Dit navn">
+    <button class="button" onclick="saveName()">Start</button>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <h2 id="welcome-message"></h2>
+    <h3 style="color: #28a745;">Vælg et tal for at starte:</h3>
+    <div>
+      <button class="button" onclick="startGame(1)">1</button>
+      <button class="button" onclick="startGame(2)">2</button>
+      <button class="button" onclick="startGame(3)">3</button>
+      <button class="button" onclick="startGame(4)">4</button>
+      <button class="button" onclick="startGame(5)">5</button>
+      <button class="button" onclick="startGame(6)">6</button>
+      <button class="button" onclick="startGame(7)">7</button>
+      <button class="button" onclick="startGame(8)">8</button>
+      <button class="button" onclick="startGame(9)">9</button>
+      <button class="button" onclick="startGame(10)">10</button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen">
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <p id="feedback"></p>
+  </div>
+
+  <!-- End Screen -->
+  <div id="end-screen">
+    <h2 id="end-message"></h2>
+    <button class="button" onclick="restartGame()">Spil igen</button>
+  </div>
+
+  <div class="wave"></div>
+
+  <script>
+    let playerName = "";
+    let chosenNumber;
+    let currentStep;
+    const maxStep = 10;
+
+    // Arrays med motiverende beskeder
+    const correctMessages = [
+        "Fantastisk, {name}! Du fik det helt rigtigt! 🎉",
+        "Yes, {name}! Du er på rette vej! 💪",
+        "Super godt gået, {name}! 🚀",
+        "Spot on, {name}! Du er en mester! 🏆",
+        "Det sidder lige i skabet, {name}! 😎",
+        "Flot arbejde, {name}! Du er virkelig dygtig! 🌟",
+        "Boom! Du ramte plet! 🔥",
+        "Helt perfekt, {name}! Bliv ved sådan! ✨",
+        "Wow, {name}! Du gør det fantastisk! 🎯",
+        "Bravo, {name}! Du klarer det super godt! 👏"
+    ];
+
+    const wrongMessages = [
+        "Ikke helt, {name}! Prøv igen – du kan godt! 🌈",
+        "Øv, tæt på, {name}! Prøv igen! 💡",
+        "Hovsa, {name}! Du rammer den næste! 👍",
+        "Ikke noget problem, {name}! Alle laver fejl – prøv igen! 💪",
+        "Ups! Bare rolig, {name}. Du klarer det! 🧠",
+        "Forkert, men det er kun en lille hurdle, {name}! 🚧",
+        "Ah, den missede vi, {name}. Du er stadig på vej mod succes! 🌟",
+        "Næsten, {name}! Du er så tæt på – prøv igen! ✨",
+        "Kom igen, {name}! Jeg tror på dig! 💪",
+        "Det er helt okay, {name}. Giv det endnu et forsøg! 🌟"
+    ];
+
+    // Funktion til at vælge en tilfældig besked
+    function getRandomMessage(messages) {
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex].replace("{name}", playerName);
+    }
+
+    function saveName() {
+        const nameInput = document.getElementById("player-name").value.trim();
+        if (nameInput) {
+            playerName = nameInput;
+            document.getElementById("name-screen").style.display = "none";
+            document.getElementById("start-screen").style.display = "block";
+            document.getElementById("welcome-message").innerText = `Hej, ${playerName}! Klar til at lære gangetabellen?`;
+        }
+    }
+
+    function startGame(number) {
+        chosenNumber = number;
+        currentStep = 2; // Start med *2
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("game-screen").style.display = "block";
+        generateQuestion();
+    }
+
+    function generateQuestion() {
+        const correctAnswer = chosenNumber * currentStep;
+        const options = [correctAnswer];
+        while (options.length < 4) {
+            const randomOption = Math.floor(Math.random() * (correctAnswer + 10)) + 1;
+            if (!options.includes(randomOption)) {
+                options.push(randomOption);
+            }
+        }
+        options.sort(() => Math.random() - 0.5); // Bland svarmuligheder
+
+        document.getElementById("question").innerText = `Hvad er ${chosenNumber} x ${currentStep}?`;
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+        options.forEach(option => {
+            const button = document.createElement("button");
+            button.innerText = option;
+            button.onclick = () => checkAnswer(option, correctAnswer);
+            optionsDiv.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selected, correct) {
+        const feedback = document.getElementById("feedback");
+        if (selected === correct) {
+            feedback.innerText = getRandomMessage(correctMessages);
+            feedback.style.color = "#28a745";
+            currentStep++;
+            if (currentStep > maxStep) {
+                endGame();
+            } else {
+                generateQuestion();
+            }
+        } else {
+            feedback.innerText = getRandomMessage(wrongMessages);
+            feedback.style.color = "#dc3545";
+        }
+    }
+
+    function endGame() {
+        document.getElementById("game-screen").style.display = "none";
+        document.getElementById("end-screen").style.display = "block";
+        document.getElementById("end-message").innerText = `Tillykke, ${playerName}! Du har mestret ${chosenNumber}-tabellen! 🎉`;
+    }
+
+    function restartGame() {
+        document.getElementById("end-screen").style.display = "none";
+        document.getElementById("start-screen").style.display = "block";
+    }
+  </script>
+  <div class="footer-mascot">
+  <img src="ugle2.png" alt="Ugle maskot">
+</div>
+</body>
+</html>
