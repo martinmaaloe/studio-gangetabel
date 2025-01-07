@@ -350,12 +350,19 @@ function checkAnswer(selected, correct) {
         feedback.innerText = getRandomMessage(correctMessages);
         feedback.style.color = "#28a745";
 
-        // Find den knap, der blev klikket, og tilføj konfetti
+        // Find knappen, der blev klikket
         const buttons = document.querySelectorAll('.options button');
         buttons.forEach(button => {
             if (parseInt(button.innerText, 10) === correct) {
-                // Brug Party.js direkte på knappen
-                party.confetti.fromSource(button, {
+                // Beregn knappen's position manuelt
+                const rect = button.getBoundingClientRect();
+                const confettiOrigin = {
+                    x: rect.left + rect.width / 2 + window.scrollX, // Midtpunkt vandret
+                    y: rect.top + rect.height / 2 + window.scrollY  // Midtpunkt lodret
+                };
+
+                // Brug Party.js til at vise konfetti ved den beregnede position
+                party.confetti(confettiOrigin, {
                     count: party.variation.range(50, 100), // Antal konfetti-stykker
                     spread: 70, // Hvor bredt konfettien spredes
                     size: party.variation.range(0.4, 0.8), // Konfetti-størrelse
