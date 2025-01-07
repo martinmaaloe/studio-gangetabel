@@ -346,33 +346,40 @@ function generateQuestion() {
 // Tjek spillerens svar
 function checkAnswer(selected, correct) {
     const feedback = document.getElementById("feedback");
+
     if (selected === correct) {
         feedback.innerText = getRandomMessage(correctMessages);
         feedback.style.color = "#28a745";
 
-        // Find knappen, der blev klikket
+        // Find the button that matches the correct answer
         const buttons = document.querySelectorAll('.options button');
         buttons.forEach(button => {
             if (parseInt(button.innerText, 10) === correct) {
-                // Beregn knappen's position manuelt
+                // Get the button's position
                 const rect = button.getBoundingClientRect();
+
+                // Calculate the exact position for the confetti
                 const confettiOrigin = {
-                    x: rect.left + rect.width / 2 + window.scrollX, // Midtpunkt vandret
-                    y: rect.top + rect.height / 2 + window.scrollY  // Midtpunkt lodret
+                    x: rect.left + rect.width / 2, // Horizontal center of the button
+                    y: rect.top + rect.height / 2 // Vertical center of the button
                 };
 
-                // Brug Party.js til at vise konfetti ved den beregnede position
-                party.confetti(confettiOrigin, {
-                    count: party.variation.range(50, 100), // Antal konfetti-stykker
-                    spread: 70, // Hvor bredt konfettien spredes
-                    size: party.variation.range(0.4, 0.8), // Konfetti-størrelse
-                    speed: party.variation.range(200, 400), // Hastighed for konfetti
+                // Trigger confetti effect using explicit coordinates
+                party.confetti({
+                    x: confettiOrigin.x + window.scrollX, // Account for scroll position
+                    y: confettiOrigin.y + window.scrollY
+                }, {
+                    count: party.variation.range(50, 100),
+                    spread: 70,
+                    size: party.variation.range(0.4, 0.8),
+                    speed: party.variation.range(200, 400)
                 });
             }
         });
 
         currentStep++;
-        saveGameState(); // Gem status
+        saveGameState(); // Save progress
+
         if (currentStep > maxStep) {
             endGame();
         } else {
