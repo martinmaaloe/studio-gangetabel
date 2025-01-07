@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gangetabel Spil</title>
@@ -212,110 +213,183 @@ input {
   <div class="wave"></div>
 
   <script>
-    let playerName = "";
-    let chosenNumber;
-    let currentStep;
-    const maxStep = 10;
+let playerName = "";
+let chosenNumber;
+let currentStep;
+const maxStep = 10;
 
-    // Arrays med motiverende beskeder
-    const correctMessages = [
-        "Fantastisk, {name}! Du fik det helt rigtigt! 🎉",
-        "Yes, {name}! Du er på rette vej! 💪",
-        "Super godt gået, {name}! 🚀",
-        "Spot on, {name}! Du er en mester! 🏆",
-        "Det sidder lige i skabet, {name}! 😎",
-        "Flot arbejde, {name}! Du er virkelig dygtig! 🌟",
-        "Boom! Du ramte plet! 🔥",
-        "Helt perfekt, {name}! Bliv ved sådan! ✨",
-        "Wow, {name}! Du gør det fantastisk! 🎯",
-        "Bravo, {name}! Du klarer det super godt! 👏"
-    ];
+// Arrays med motiverende beskeder
+const correctMessages = [
+    "Fantastisk, {name}! Du fik det helt rigtigt! 🎉",
+    "Yes, {name}! Du er på rette vej! 💪",
+    "Super godt gået, {name}! 🚀",
+    "Spot on, {name}! Du er en mester! 🏆",
+    "Det sidder lige i skabet, {name}! 😎",
+    "Flot arbejde, {name}! Du er virkelig dygtig! 🌟",
+    "Boom! Du ramte plet! 🔥",
+    "Helt perfekt, {name}! Bliv ved sådan! ✨",
+    "Wow, {name}! Du gør det fantastisk! 🎯",
+    "Bravo, {name}! Du klarer det super godt! 👏"
+];
 
-    const wrongMessages = [
-        "Ikke helt, {name}! Prøv igen – du kan godt! 🌈",
-        "Øv, tæt på, {name}! Prøv igen! 💡",
-        "Hovsa, {name}! Du rammer den næste! 👍",
-        "Ikke noget problem, {name}! Alle laver fejl – prøv igen! 💪",
-        "Ups! Bare rolig, {name}. Du klarer det! 🧠",
-        "Forkert, men det er kun en lille hurdle, {name}! 🚧",
-        "Ah, den missede vi, {name}. Du er stadig på vej mod succes! 🌟",
-        "Næsten, {name}! Du er så tæt på – prøv igen! ✨",
-        "Kom igen, {name}! Jeg tror på dig! 💪",
-        "Det er helt okay, {name}. Giv det endnu et forsøg! 🌟"
-    ];
+const wrongMessages = [
+    "Ikke helt, {name}! Prøv igen – du kan godt! 🌈",
+    "Øv, tæt på, {name}! Prøv igen! 💡",
+    "Hovsa, {name}! Du rammer den næste! 👍",
+    "Ikke noget problem, {name}! Alle laver fejl – prøv igen! 💪",
+    "Ups! Bare rolig, {name}. Du klarer det! 🧠",
+    "Forkert, men det er kun en lille hurdle, {name}! 🚧",
+    "Ah, den missede vi, {name}. Du er stadig på vej mod succes! 🌟",
+    "Næsten, {name}! Du er så tæt på – prøv igen! ✨",
+    "Kom igen, {name}! Jeg tror på dig! 💪",
+    "Det er helt okay, {name}. Giv det endnu et forsøg! 🌟"
+];
 
-    function getRandomMessage(messages) {
-        const randomIndex = Math.floor(Math.random() * messages.length);
-        return messages[randomIndex].replace("{name}", playerName);
+// Funktion til at vælge en tilfældig besked
+function getRandomMessage(messages) {
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    return messages[randomIndex].replace("{name}", playerName);
+}
+
+// Funktion til at gemme data i Local Storage
+function saveGameState() {
+    const gameState = {
+        playerName: playerName,
+        chosenNumber: chosenNumber,
+        currentStep: currentStep
+    };
+    localStorage.setItem("gameState", JSON.stringify(gameState));
+}
+
+// Funktion til at hente data fra Local Storage
+function loadGameState() {
+    const savedState = localStorage.getItem("gameState");
+    if (savedState) {
+        return JSON.parse(savedState);
     }
+    return null;
+}
 
-    function saveName() {
-        const nameInput = document.getElementById("player-name").value.trim();
-        if (nameInput) {
-            playerName = nameInput;
+// Start spillet med gemte data eller fra starten
+function initializeGame() {
+    const savedState = loadGameState();
+    if (savedState) {
+        playerName = savedState.playerName;
+        chosenNumber = savedState.chosenNumber;
+        currentStep = savedState.currentStep;
+
+        if (chosenNumber && currentStep) {
+            // Hvis spilleren allerede er i gang
+            document.getElementById("name-screen").classList.remove("active");
+            document.getElementById("start-screen").classList.remove("active");
+            document.getElementById("game-screen").classList.add("active");
+            generateQuestion();
+        } else {
+            // Hvis spilleren har indtastet navn, men ikke valgt et tal
             document.getElementById("name-screen").classList.remove("active");
             document.getElementById("start-screen").classList.add("active");
             document.getElementById("welcome-message").innerText = `Hej, ${playerName}! Klar til at lære gangetabellen?`;
         }
+    } else {
+        // Start spillet fra begyndelsen
+        document.getElementById("name-screen").classList.add("active");
     }
+}
 
-    function startGame(number) {
-        chosenNumber = number;
-        currentStep = 2;
-        document.getElementById("start-screen").classList.remove("active");
-        document.getElementById("game-screen").classList.add("active");
-        generateQuestion();
-    }
-
-    function generateQuestion() {
-        const correctAnswer = chosenNumber * currentStep;
-        const options = [correctAnswer];
-        while (options.length < 4) {
-            const randomOption = Math.floor(Math.random() * (correctAnswer + 10)) + 1;
-            if (!options.includes(randomOption)) {
-                options.push(randomOption);
-            }
-        }
-        options.sort(() => Math.random() - 0.5);
-
-        document.getElementById("question").innerText = `Hvad er ${chosenNumber} x ${currentStep}?`;
-        const optionsDiv = document.getElementById("options");
-        optionsDiv.innerHTML = "";
-        options.forEach(option => {
-            const button = document.createElement("button");
-            button.innerText = option;
-            button.onclick = () => checkAnswer(option, correctAnswer);
-            optionsDiv.appendChild(button);
-        });
-    }
-
-    function checkAnswer(selected, correct) {
-        const feedback = document.getElementById("feedback");
-        if (selected === correct) {
-            feedback.innerText = getRandomMessage(correctMessages);
-            feedback.style.color = "#28a745";
-            currentStep++;
-            if (currentStep > maxStep) {
-                endGame();
-            } else {
-                generateQuestion();
-            }
-        } else {
-            feedback.innerText = getRandomMessage(wrongMessages);
-            feedback.style.color = "#dc3545";
-        }
-    }
-
-    function endGame() {
-        document.getElementById("game-screen").classList.remove("active");
-        document.getElementById("end-screen").classList.add("active");
-        document.getElementById("end-message").innerText = `Tillykke, ${playerName}! Du har mestret ${chosenNumber}-tabellen! 🎉`;
-    }
-
-    function restartGame() {
-        document.getElementById("end-screen").classList.remove("active");
+// Gem spillerens navn
+function saveName() {
+    const nameInput = document.getElementById("player-name").value.trim();
+    if (nameInput) {
+        playerName = nameInput;
+        saveGameState(); // Gem status
+        document.getElementById("name-screen").classList.remove("active");
         document.getElementById("start-screen").classList.add("active");
+        document.getElementById("welcome-message").innerText = `Hej, ${playerName}! Klar til at lære gangetabellen?`;
     }
+}
+
+// Start spillet med valgt tal
+function startGame(number) {
+    chosenNumber = number;
+    currentStep = 2; // Start med *2
+    saveGameState(); // Gem status
+    document.getElementById("start-screen").classList.remove("active");
+    document.getElementById("game-screen").classList.add("active");
+    generateQuestion();
+}
+
+// Generér et nyt spørgsmål
+function generateQuestion() {
+    const correctAnswer = chosenNumber * currentStep;
+    const options = [correctAnswer];
+    while (options.length < 4) {
+        const randomOption = Math.floor(Math.random() * (correctAnswer + 10)) + 1;
+        if (!options.includes(randomOption)) {
+            options.push(randomOption);
+        }
+    }
+    options.sort(() => Math.random() - 0.5);
+
+    document.getElementById("question").innerText = `Hvad er ${chosenNumber} x ${currentStep}?`;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+    options.forEach(option => {
+        const button = document.createElement("button");
+        button.innerText = option;
+
+        // Send korrekt svar som argument til onclick
+        button.onclick = (event) => checkAnswer(option, correctAnswer, event);
+        optionsDiv.appendChild(button);
+    });
+}
+
+// Tjek spillerens svar
+function checkAnswer(selected, correct, event) {
+    const feedback = document.getElementById("feedback");
+    if (selected === correct) {
+        feedback.innerText = getRandomMessage(correctMessages);
+        feedback.style.color = "#28a745";
+
+        // Brug Party.js med musens position
+        party.confetti(event, {
+            count: party.variation.range(50, 80), // Antal konfetti-stykker
+            spread: 70, // Hvor bredt konfettien spredes
+            size: party.variation.range(0.4, 0.8), // Konfetti-størrelse
+            speed: party.variation.range(300, 400), // Hastighed for konfetti
+        });
+
+        currentStep++;
+        saveGameState(); // Gem status
+        if (currentStep > maxStep) {
+            endGame();
+        } else {
+            generateQuestion();
+        }
+    } else {
+        feedback.innerText = getRandomMessage(wrongMessages);
+        feedback.style.color = "#dc3545";
+    }
+}
+
+// Afslut spillet
+function endGame() {
+    document.getElementById("game-screen").classList.remove("active");
+    document.getElementById("end-screen").classList.add("active");
+    document.getElementById("end-message").innerText = `Tillykke, ${playerName}! Du har mestret ${chosenNumber}-tabellen! 🎉`;
+    localStorage.removeItem("gameState"); // Slet status
+}
+
+// Genstart spillet
+function restartGame() {
+    document.getElementById("end-screen").classList.remove("active");
+    document.getElementById("start-screen").classList.add("active");
+    chosenNumber = null;
+    currentStep = null;
+    saveGameState(); // Nulstil status
+}
+
+// Initialiser spillet, når siden indlæses
+initializeGame();
   </script>
 
   <div class="footer-mascot">
