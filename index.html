@@ -224,7 +224,7 @@ body {
             playerName = nameInput;
             document.getElementById("name-screen").style.display = "none";
             document.getElementById("start-screen").style.display = "block";
-            document.getElementById("welcome-message").innerText = Hej, ${playerName}! Klar til at lære gangetabellen?;
+            document.getElementById("welcome-message").innerText = `Hej, ${playerName}! Klar til at lære gangetabellen?`;
         }
     }
 
@@ -247,7 +247,7 @@ body {
         }
         options.sort(() => Math.random() - 0.5); // Bland svarmuligheder
 
-        document.getElementById("question").innerText = Hvad er ${chosenNumber} x ${currentStep}?;
+        document.getElementById("question").innerText = `Hvad er ${chosenNumber} x ${currentStep}?`;
         const optionsDiv = document.getElementById("options");
         optionsDiv.innerHTML = "";
         options.forEach(option => {
@@ -278,7 +278,7 @@ body {
     function endGame() {
         document.getElementById("game-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "block";
-        document.getElementById("end-message").innerText = Tillykke, ${playerName}! Du har mestret ${chosenNumber}-tabellen! 🎉;
+        document.getElementById("end-message").innerText = `Tillykke, ${playerName}! Du har mestret ${chosenNumber}-tabellen! 🎉`;
     }
 
     function restartGame() {
