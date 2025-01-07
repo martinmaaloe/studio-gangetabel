@@ -355,24 +355,12 @@ function checkAnswer(selected, correct) {
         const buttons = document.querySelectorAll('.options button');
         buttons.forEach(button => {
             if (parseInt(button.innerText, 10) === correct) {
-                // Get the button's position
-                const rect = button.getBoundingClientRect();
-
-                // Calculate the exact position for the confetti
-                const confettiOrigin = {
-                    x: rect.left + rect.width / 2, // Horizontal center of the button
-                    y: rect.top + rect.height / 2 // Vertical center of the button
-                };
-
-                // Trigger confetti effect using explicit coordinates
-                party.confetti({
-                    x: confettiOrigin.x + window.scrollX, // Account for scroll position
-                    y: confettiOrigin.y + window.scrollY
-                }, {
-                    count: party.variation.range(50, 100),
-                    spread: 70,
-                    size: party.variation.range(0.4, 0.8),
-                    speed: party.variation.range(200, 400)
+                // Trigger confetti directly from the button element
+                party.confetti(button, {
+                    count: party.variation.range(50, 100), // Number of confetti pieces
+                    spread: 70, // Spread of confetti
+                    size: party.variation.range(0.4, 0.8), // Size of confetti
+                    speed: party.variation.range(200, 400), // Speed of confetti
                 });
             }
         });
