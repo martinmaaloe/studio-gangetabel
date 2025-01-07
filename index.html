@@ -344,29 +344,22 @@ function generateQuestion() {
 }
 
 // Tjek spillerens svar
-function checkAnswer(selected, correct, event) {
+function checkAnswer(selected, correct) {
     const feedback = document.getElementById("feedback");
     if (selected === correct) {
         feedback.innerText = getRandomMessage(correctMessages);
         feedback.style.color = "#28a745";
 
-        // Find knappen, der blev klikket
+        // Find den knap, der blev klikket, og tilføj konfetti
         const buttons = document.querySelectorAll('.options button');
         buttons.forEach(button => {
             if (parseInt(button.innerText, 10) === correct) {
-                // Beregn knappen's position
-                const rect = button.getBoundingClientRect();
-                const confettiOrigin = {
-                    x: rect.left + rect.width / 2 + window.scrollX, // Midtpunkt vandret
-                    y: rect.top + rect.height / 2 + window.scrollY  // Midtpunkt lodret
-                };
-
-                // Brug Party.js til at vise konfetti ved knappen's position
-                party.confetti(confettiOrigin, {
-                    count: party.variation.range(50, 80), // Antal konfetti-stykker
+                // Brug Party.js direkte på knappen
+                party.confetti.fromSource(button, {
+                    count: party.variation.range(50, 100), // Antal konfetti-stykker
                     spread: 70, // Hvor bredt konfettien spredes
                     size: party.variation.range(0.4, 0.8), // Konfetti-størrelse
-                    speed: party.variation.range(300, 400), // Hastighed for konfetti
+                    speed: party.variation.range(200, 400), // Hastighed for konfetti
                 });
             }
         });
