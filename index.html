@@ -344,30 +344,22 @@ function generateQuestion() {
 }
 
 // Tjek spillerens svar
-function checkAnswer(selected, correct) {
+function checkAnswer(selected, correct, event) {
     const feedback = document.getElementById("feedback");
-
     if (selected === correct) {
         feedback.innerText = getRandomMessage(correctMessages);
         feedback.style.color = "#28a745";
 
-        // Find the button that matches the correct answer
-        const buttons = document.querySelectorAll('.options button');
-        buttons.forEach(button => {
-            if (parseInt(button.innerText, 10) === correct) {
-                // Trigger confetti directly from the button element
-                party.confetti(button, {
-                    count: party.variation.range(50, 100), // Number of confetti pieces
-                    spread: 70, // Spread of confetti
-                    size: party.variation.range(0.4, 0.8), // Size of confetti
-                    speed: party.variation.range(200, 400), // Speed of confetti
-                });
-            }
+        // Brug Party.js med musens position
+        party.confetti(event, {
+            count: party.variation.range(50, 80), // Antal konfetti-stykker
+            spread: 70, // Hvor bredt konfettien spredes
+            size: party.variation.range(0.4, 0.8), // Konfetti-størrelse
+            speed: party.variation.range(300, 400), // Hastighed for konfetti
         });
 
         currentStep++;
-        saveGameState(); // Save progress
-
+        saveGameState(); // Gem status
         if (currentStep > maxStep) {
             endGame();
         } else {
